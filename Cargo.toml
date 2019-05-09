@@ -1,0 +1,8 @@
+[package]
+name = "recordix"
+version = "0.1.0"
+authors = ["sim"]
+edition = "2018"
+
+[dependencies]
+libpulse-sys = "1.5"
