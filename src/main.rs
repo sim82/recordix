@@ -30,7 +30,30 @@ fn main() {
     .unwrap();
 
     println!("waiting ...");
-    stop_revc.recv().unwrap();
+    loop {
+        std::thread::sleep_ms(1000);
+        sink_send
+            .send(sink::Command::ApplyToLast(
+                48000,
+                Box::new(|buf| {
+                    let num_samples = buf.len() / 2;
+                    let mut cursor = std::io::Cursor::new(buf);
+                    let mut avg = 0f64;
+                    for i in 0..num_samples {
+                        let sample = cursor.read_i16::<NativeEndian>().unwrap();
+                        avg += sample.abs() as f64 * (1f64 / num_samples as f64);
+                    }
+                    // let sum = buf.iter().fold(0f64, |acc, x| acc + *x as f64);
+                    println!("avg: {}", avg);
+                }),
+            ))
+            .unwrap();
+
+        if let Ok(_) = stop_revc.try_recv() {
+            break;
+        }
+    }
+
     recorder_send.send(recorder::Command::Stop);
     recorder_join.join();
     sink_send.send(sink::Command::Stop);
