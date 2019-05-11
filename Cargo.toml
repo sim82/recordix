@@ -5,7 +5,8 @@ authors = ["sim"]
 edition = "2018"
 
 [dependencies]
-libpulse-simple-binding = "2"
-libpulse-binding = "2"
-hound = "3"
-byteorder = "1"
+libpulse-simple-binding = "*"
+libpulse-binding = "*"
+hound = "*"
+byteorder = "*"
+ctrlc = "*"
