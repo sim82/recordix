@@ -1,5 +1,6 @@
 use super::error::{Error, Result};
 use super::sink;
+use super::CommandNode;
 use libpulse_binding as pulse;
 use libpulse_simple_binding as psimple;
 use psimple::Simple;
@@ -17,9 +18,7 @@ struct PulseAudioRecorder {
     pulse: Simple,
 }
 
-pub fn run_recorder(
-    sink_command_sender: Sender<sink::Command>,
-) -> Result<(std::thread::JoinHandle<()>, Sender<Command>)> {
+pub fn run_recorder(sink_command_sender: Sender<sink::Command>) -> Result<CommandNode<Command>> {
     let spec = pulse::sample::Spec {
         format: pulse::sample::SAMPLE_S16NE,
         channels: 2,
@@ -54,7 +53,7 @@ pub fn run_recorder(
         recorder.run().unwrap();
     });
 
-    Ok((join_handle, send))
+    Ok(CommandNode::new(join_handle, send, Command::Stop))
 }
 
 impl PulseAudioRecorder {
