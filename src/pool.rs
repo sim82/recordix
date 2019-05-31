@@ -1,10 +1,10 @@
-use super::error::{Error, Result};
+use super::error::Result;
 use super::CommandNode;
 use std::collections::VecDeque;
-use std::io::Cursor;
-use std::sync::mpsc::{channel, Receiver, Sender};
+use std::sync::mpsc::{channel, Receiver};
 use std::thread::spawn;
 
+#[allow(unused)]
 pub enum Command {
     Append(Vec<u8>),
     ApplyToLast(usize, Box<Fn(Vec<u8>) + Send>),
@@ -31,7 +31,7 @@ impl LruPool {
                         self.last_buffers.pop_front();
                     }
                 }
-                Command::ApplyToLast(num_samples, f) => {
+                Command::ApplyToLast(_num_samples, f) => {
                     f(self
                         .last_buffers
                         .back()
@@ -56,7 +56,7 @@ pub fn run_lru_pool() -> Result<CommandNode<Command>> {
         last_buffers: VecDeque::new(),
     };
     let handle = spawn(move || {
-        pool.mainloop();
+        pool.mainloop().expect("mainloop error");
     });
     Ok(CommandNode::new(handle, send, Command::Stop))
 }

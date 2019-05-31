@@ -1,15 +1,4 @@
-use libpulse_binding as pulse;
-use libpulse_simple_binding as psimple;
-
-use byteorder::{NativeEndian, ReadBytesExt};
-use ctrlc;
-use error::{Error, Result};
-use hound;
-use psimple::Simple;
-use pulse::stream::Direction;
-use std::io::Cursor;
-use std::sync::mpsc::{SendError, Sender};
-use std::sync::{Condvar, Mutex};
+use std::sync::mpsc::Sender;
 use std::thread::JoinHandle;
 // trait SampleSink {
 
@@ -35,7 +24,7 @@ impl<T: Send> CommandNode<T> {
             stop_command: stop_command,
         }
     }
-
+    #[allow(unused)]
     fn send(&self, command: T) -> error::Result<()> {
         self.command_sender.send(command)?;
         Ok(())

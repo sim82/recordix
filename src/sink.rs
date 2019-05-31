@@ -3,7 +3,6 @@ use super::pool;
 use super::CommandNode;
 use byteorder::{NativeEndian, ReadBytesExt};
 use hound;
-use std::collections::VecDeque;
 use std::io::Cursor;
 use std::sync::mpsc::{channel, Receiver, Sender};
 use std::thread::spawn;
@@ -34,7 +33,7 @@ impl WaveWriter {
                     let num_samples = buf.len() / 4;
                     let mut cursor = Cursor::new(&buf);
 
-                    for i in 0..num_samples {
+                    for _i in 0..num_samples {
                         let left = cursor.read_i16::<NativeEndian>()?;
                         let right = cursor.read_i16::<NativeEndian>()?;
 
@@ -42,7 +41,7 @@ impl WaveWriter {
                         self.writer.write_sample(left)?;
                         self.writer.write_sample(right)?;
                     }
-                    self.writer.flush();
+                    self.writer.flush()?;
 
                     println!("wrote {} samples", num_samples);
 
@@ -76,7 +75,7 @@ pub fn run_writer<P: AsRef<std::path::Path>>(
     };
     let sender = writer.command_sender.clone();
     let handle = spawn(move || {
-        writer.mainloop();
+        writer.mainloop().expect("mainloop error");
     });
     Ok(CommandNode::new(handle, sender, Command::Stop))
 }

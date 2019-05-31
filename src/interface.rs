@@ -1,5 +1,4 @@
-
-use super::error::{Error, Result};
+use super::error::Result;
 use super::CommandNode;
 use rustyline::error::ReadlineError;
 use rustyline::Editor;
@@ -40,7 +39,7 @@ impl RustylineInterface {
                     println!("rustyline interface stop");
                     break;
                 }
-                Err(_) => ()
+                Err(_) => (),
             }
         }
 
@@ -56,7 +55,7 @@ pub fn run_shell_interface() -> Result<CommandNode<Command>> {
         command_receiver: recv,
     };
     let handle = spawn(move || {
-        interface.mainloop();
+        interface.mainloop().expect("mainloop error");
     });
     Ok(CommandNode::new(handle, send, Command::Stop))
 

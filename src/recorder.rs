@@ -12,7 +12,6 @@ pub enum Command {
 }
 
 struct PulseAudioRecorder {
-    command_sender: Sender<Command>,
     command_receiver: Receiver<Command>,
     sink_command_sender: Sender<sink::Command>,
     pulse: Simple,
@@ -29,7 +28,6 @@ pub fn run_recorder(sink_command_sender: Sender<sink::Command>) -> Result<Comman
     let (send, recv) = channel();
 
     let mut recorder = PulseAudioRecorder {
-        command_sender: send.clone(),
         command_receiver: recv,
         sink_command_sender: sink_command_sender,
         pulse: Simple::new(
@@ -47,7 +45,6 @@ pub fn run_recorder(sink_command_sender: Sender<sink::Command>) -> Result<Comman
     let latency = recorder.pulse.get_latency().unwrap();
     println!("latency: {}", latency);
 
-    const NUM_SAMPLES: usize = 48000;
 
     let join_handle = std::thread::spawn(move || {
         recorder.run().unwrap();
