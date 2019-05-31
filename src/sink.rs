@@ -43,7 +43,7 @@ impl WaveWriter {
                     }
                     self.writer.flush()?;
 
-                    println!("wrote {} samples", num_samples);
+                    // println!("wrote {} samples", num_samples);
 
                     if let Some(pool) = &self.pool_sender {
                         pool.send(pool::Command::Append(buf))?;
