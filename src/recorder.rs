@@ -1,6 +1,6 @@
-use super::error::{Error, Result};
-use super::sink;
-use super::CommandNode;
+use crate::error::{Error, Result};
+use crate::node::CommandNode;
+use crate::sink;
 use libpulse_binding as pulse;
 use libpulse_simple_binding as psimple;
 use psimple::Simple;
@@ -44,7 +44,6 @@ pub fn run_recorder(sink_command_sender: Sender<sink::Command>) -> Result<Comman
 
     let latency = recorder.pulse.get_latency().unwrap();
     println!("latency: {}", latency);
-
 
     let join_handle = std::thread::spawn(move || {
         recorder.run().unwrap();
