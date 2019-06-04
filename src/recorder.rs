@@ -7,9 +7,11 @@ use psimple::Simple;
 use pulse::stream::Direction;
 use std::sync::mpsc::{channel, Receiver, Sender};
 
-pub enum Command {
-    Stop,
-}
+// pub enum Command {
+//     Stop,
+// }
+
+type Command = crate::node::Command;
 
 struct PulseAudioRecorder {
     command_receiver: Receiver<Command>,
@@ -49,7 +51,7 @@ pub fn run_recorder(sink_command_sender: Sender<sink::Command>) -> Result<Comman
         recorder.run().unwrap();
     });
 
-    Ok(CommandNode::new(join_handle, send, Command::Stop))
+    Ok(CommandNode::new(join_handle, send))
 }
 
 impl PulseAudioRecorder {

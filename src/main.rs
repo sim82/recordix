@@ -1,7 +1,7 @@
 // trait SampleSink {
 
 // }
-
+#![feature(type_alias_enum_variants)]
 mod error;
 mod interface;
 mod node;

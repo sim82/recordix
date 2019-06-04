@@ -2,18 +2,22 @@ use crate::error;
 use std::sync::mpsc::Sender;
 use std::thread::JoinHandle;
 
+pub enum Command {
+    Stop,
+}
+
 pub struct CommandNode<T: Send> {
     command_sender: Sender<T>,
     join_handle: std::thread::JoinHandle<()>,
-    stop_command: T,
+    // stop_command: T,
 }
 
-impl<T: Send> CommandNode<T> {
-    pub fn new(join_handle: JoinHandle<()>, sender: Sender<T>, stop_command: T) -> Self {
+impl<T: Send + From<Command>> CommandNode<T> {
+    pub fn new(join_handle: JoinHandle<()>, sender: Sender<T>) -> Self {
         CommandNode {
             join_handle: join_handle,
             command_sender: sender,
-            stop_command: stop_command,
+            // stop_command: stop_command,
         }
     }
     #[allow(unused)]
@@ -30,10 +34,10 @@ impl<T: Send> CommandNode<T> {
         let CommandNode {
             join_handle,
             command_sender,
-            stop_command,
+            // stop_command,
         } = self;
 
-        command_sender.send(stop_command).unwrap();
+        command_sender.send(Command::Stop.into()).unwrap();
         join_handle.join().unwrap();
     }
 
@@ -44,15 +48,21 @@ impl<T: Send> CommandNode<T> {
     }
 }
 
+// type Factory = Box<Fn() -> Box<CommandNode<From<Command>>>>;
+
+// struct Manager {
+//     factories: std::collections::HashMap<String, Factory>,
+// }
+
+#[cfg(test)]
 mod tests {
+    use super::Command;
     use super::CommandNode;
     use std::sync::mpsc::channel;
     use std::thread::spawn;
     use std::time::Duration;
     use std::time::Instant;
-    enum Command {
-        Stop,
-    }
+
     #[test]
     fn test_node_lifecycle() {
         let (send, recv) = channel();
@@ -72,10 +82,11 @@ mod tests {
         });
 
         let t1 = Instant::now();
-        println!("waiting for node to stop ...");
         node.join();
-        println!("stopped");
-        assert!(Instant::now().duration_since(t1) > Duration::from_millis(300));
+        assert!(
+            Instant::now().duration_since(t1) > Duration::from_millis(300),
+            "join returned too fast",
+        );
         handle2.join().expect("join failed");
     }
 }

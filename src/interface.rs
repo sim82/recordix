@@ -1,4 +1,5 @@
 use crate::error::Result;
+use crate::node;
 use crate::node::CommandNode;
 use crate::pool;
 
@@ -8,9 +9,11 @@ use rustyline::Editor;
 use std::sync::mpsc::{channel, Receiver, Sender};
 use std::thread::spawn;
 
-pub enum Command {
-    Stop,
-}
+// pub enum Command {
+//     Stop,
+// }
+
+type Command = node::Command;
 
 struct RustylineInterface {
     command_receiver: Receiver<Command>,
@@ -94,5 +97,5 @@ pub fn run_shell_interface(pool_command: Sender<pool::Command>) -> Result<Comman
     let handle = spawn(move || {
         interface.mainloop().expect("mainloop error");
     });
-    Ok(CommandNode::new(handle, send, Command::Stop))
+    Ok(CommandNode::new(handle, send))
 }

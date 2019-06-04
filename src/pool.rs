@@ -1,5 +1,7 @@
 use crate::error::Result;
+use crate::node;
 use crate::node::CommandNode;
+
 use std::collections::VecDeque;
 use std::sync::mpsc::{channel, Receiver};
 use std::thread::spawn;
@@ -8,7 +10,13 @@ use std::thread::spawn;
 pub enum Command {
     Append(Vec<u8>),
     ApplyToLast(usize, Box<Fn(Vec<u8>) + Send>),
-    Stop,
+    Node(crate::node::Command),
+}
+
+impl From<crate::node::Command> for Command {
+    fn from(cmd: crate::node::Command) -> Command {
+        Command::Node(cmd)
+    }
 }
 
 struct LruPool {
@@ -20,7 +28,7 @@ impl LruPool {
     fn mainloop(&mut self) -> Result<()> {
         loop {
             match self.command_receiver.recv()? {
-                Command::Stop => {
+                Command::Node(node::Command::Stop) => {
                     println!("pool stop");
                     break;
                 }
@@ -58,5 +66,5 @@ pub fn run_lru_pool() -> Result<CommandNode<Command>> {
     let handle = spawn(move || {
         pool.mainloop().expect("mainloop error");
     });
-    Ok(CommandNode::new(handle, send, Command::Stop))
+    Ok(CommandNode::new(handle, send))
 }
