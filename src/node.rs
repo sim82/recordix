@@ -73,7 +73,7 @@ mod tests {
                 _ => (),
             }
         });
-        let node = CommandNode::new(handle, send, Command::Stop);
+        let node = CommandNode::new(handle, send);
 
         let sender2 = node.clone_sender();
         let handle2 = spawn(move || {
