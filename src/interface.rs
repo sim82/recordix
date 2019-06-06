@@ -18,7 +18,12 @@ pub enum Command {
 struct RustylineInterface {
     command_receiver: Receiver<Command>,
     pool_command: Sender<pool::Command>,
+    stop: bool,
 }
+
+// impl rustyline::completion::Completer for RustylineInterface {
+
+// }
 
 impl RustylineInterface {
     fn command(&mut self, cmd: &str) -> Result<()> {
@@ -49,13 +54,14 @@ impl RustylineInterface {
                     println!("avg: {}", avg);
                 }
             }
+            "quit" => self.stop = true,
             _ => println!("unknown command"),
         };
         Ok(())
     }
 
     fn mainloop(&mut self) -> Result<()> {
-        loop {
+        while !self.stop {
             let mut rl = Editor::<()>::new();
 
             match rl.readline(">") {
@@ -93,6 +99,7 @@ pub fn run_shell_interface(pool_command: Sender<pool::Command>) -> Result<Comman
     let mut interface = RustylineInterface {
         command_receiver: recv,
         pool_command: pool_command,
+        stop: false,
     };
     let handle = spawn(move || {
         interface.mainloop().expect("mainloop error");
