@@ -9,11 +9,7 @@ use rustyline::Editor;
 use std::sync::mpsc::{channel, Receiver, Sender};
 use std::thread::spawn;
 
-// pub enum Command {
-//     Stop,
-// }
-
-type Command = node::Command;
+implement_command! {}
 
 struct RustylineInterface {
     command_receiver: Receiver<Command>,
@@ -75,7 +71,7 @@ impl RustylineInterface {
             };
 
             match self.command_receiver.try_recv() {
-                Ok(Command::Stop) => {
+                Ok(Command::Node(node::Command::Stop)) => {
                     println!("rustyline interface stop");
                     break;
                 }

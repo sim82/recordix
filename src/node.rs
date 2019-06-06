@@ -2,6 +2,22 @@ use crate::error;
 use std::sync::mpsc::Sender;
 use std::thread::JoinHandle;
 
+#[macro_export]
+macro_rules! implement_command {
+    ($($y:tt) *) => { // TODO: I'm not sure if this is exactly how this should be handled...
+        pub enum Command {
+            Node(node::Command),
+            $($y)*
+        }
+
+        impl From<crate::node::Command> for Command {
+            fn from(cmd: crate::node::Command) -> Self {
+                Command::Node(cmd)
+            }
+        }
+    };
+}
+
 pub enum Command {
     Stop,
 }

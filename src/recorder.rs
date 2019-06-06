@@ -1,4 +1,5 @@
 use crate::error::{Error, Result};
+use crate::node;
 use crate::node::CommandNode;
 use crate::sink;
 use libpulse_binding as pulse;
@@ -7,11 +8,7 @@ use psimple::Simple;
 use pulse::stream::Direction;
 use std::sync::mpsc::{channel, Receiver, Sender};
 
-// pub enum Command {
-//     Stop,
-// }
-
-type Command = crate::node::Command;
+implement_command! {}
 
 struct PulseAudioRecorder {
     command_receiver: Receiver<Command>,
@@ -58,7 +55,7 @@ impl PulseAudioRecorder {
     fn run(&mut self) -> Result<()> {
         loop {
             match self.command_receiver.try_recv() {
-                Ok(Command::Stop) => {
+                Ok(Command::Node(node::Command::Stop)) => {
                     println!("recorder stop");
                     break;
                 }

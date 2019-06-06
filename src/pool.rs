@@ -6,17 +6,9 @@ use std::collections::VecDeque;
 use std::sync::mpsc::{channel, Receiver};
 use std::thread::spawn;
 
-#[allow(unused)]
-pub enum Command {
+implement_command! {
     Append(Vec<u8>),
-    ApplyToLast(usize, Box<Fn(Vec<u8>) + Send>),
-    Node(crate::node::Command),
-}
-
-impl From<crate::node::Command> for Command {
-    fn from(cmd: crate::node::Command) -> Command {
-        Command::Node(cmd)
-    }
+    ApplyToLast(usize, Box<Fn(Vec<u8>) + Send>)
 }
 
 struct LruPool {

@@ -1,10 +1,12 @@
 // trait SampleSink {
 
 // }
-#![feature(type_alias_enum_variants)]
+
+#[macro_use]
+mod node;
+
 mod error;
 mod interface;
-mod node;
 mod pool;
 mod recorder;
 mod sink;

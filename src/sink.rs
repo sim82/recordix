@@ -8,15 +8,8 @@ use std::io::Cursor;
 use std::sync::mpsc::{channel, Receiver, Sender};
 use std::thread::spawn;
 
-pub enum Command {
+implement_command! {
     Append(Vec<u8>),
-    Node(node::Command),
-}
-
-impl From<crate::node::Command> for Command {
-    fn from(cmd: crate::node::Command) -> Command {
-        Command::Node(cmd)
-    }
 }
 
 type HoundWavWriter = hound::WavWriter<std::io::BufWriter<std::fs::File>>;
