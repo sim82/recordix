@@ -1,19 +1,15 @@
-use super::error::Error;
-use super::error::Result;
-use super::pool;
-use super::CommandNode;
+use crate::error::Result;
+use crate::node;
+use crate::node::CommandNode;
+use crate::pool;
 
 use byteorder::{NativeEndian, ReadBytesExt};
 use rustyline::error::ReadlineError;
 use rustyline::Editor;
-use std::io::Cursor;
 use std::sync::mpsc::{channel, Receiver, Sender};
 use std::thread::spawn;
 
-
-pub enum Command {
-    Stop,
-}
+implement_command! {}
 
 struct RustylineInterface {
     command_receiver: Receiver<Command>,
@@ -38,7 +34,7 @@ impl RustylineInterface {
                             let num_samples = buf.len() / 2;
                             let mut cursor = std::io::Cursor::new(buf);
                             let mut avg = 0f64;
-                            std::thread::sleep_ms(500);
+                            std::thread::sleep(std::time::Duration::from_millis(500));
                             for _i in 0..num_samples {
                                 let sample = cursor.read_i16::<NativeEndian>().unwrap();
                                 avg += (sample as f64).abs() * (1f64 / num_samples as f64);
@@ -81,7 +77,7 @@ impl RustylineInterface {
             };
 
             match self.command_receiver.try_recv() {
-                Ok(Command::Stop) => {
+                Ok(Command::Node(node::Command::Stop)) => {
                     println!("rustyline interface stop");
                     break;
                 }
@@ -104,6 +100,5 @@ pub fn run_shell_interface(pool_command: Sender<pool::Command>) -> Result<Comman
     let handle = spawn(move || {
         interface.mainloop().expect("mainloop error");
     });
-    Ok(CommandNode::new(handle, send, Command::Stop))
-
+    Ok(CommandNode::new(handle, send))
 }

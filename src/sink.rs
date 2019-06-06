@@ -1,15 +1,15 @@
-use super::error::{Error, Result};
-use super::pool;
-use super::CommandNode;
+use crate::error::{Error, Result};
+use crate::node;
+use crate::node::CommandNode;
+use crate::pool;
 use byteorder::{NativeEndian, ReadBytesExt};
 use hound;
 use std::io::Cursor;
 use std::sync::mpsc::{channel, Receiver, Sender};
 use std::thread::spawn;
 
-pub enum Command {
+implement_command! {
     Append(Vec<u8>),
-    Stop,
 }
 
 type HoundWavWriter = hound::WavWriter<std::io::BufWriter<std::fs::File>>;
@@ -25,7 +25,7 @@ impl WaveWriter {
     fn mainloop(&mut self) -> Result<()> {
         loop {
             match self.command_receiver.recv()? {
-                Command::Stop => {
+                Command::Node(node::Command::Stop) => {
                     println!("sink stop");
                     break;
                 }
@@ -77,7 +77,7 @@ pub fn run_writer<P: AsRef<std::path::Path>>(
     let handle = spawn(move || {
         writer.mainloop().expect("mainloop error");
     });
-    Ok(CommandNode::new(handle, sender, Command::Stop))
+    Ok(CommandNode::new(handle, sender))
 }
 
 impl From<hound::Error> for Error {

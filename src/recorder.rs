@@ -1,15 +1,14 @@
-use super::error::{Error, Result};
-use super::sink;
-use super::CommandNode;
+use crate::error::{Error, Result};
+use crate::node;
+use crate::node::CommandNode;
+use crate::sink;
 use libpulse_binding as pulse;
 use libpulse_simple_binding as psimple;
 use psimple::Simple;
 use pulse::stream::Direction;
 use std::sync::mpsc::{channel, Receiver, Sender};
 
-pub enum Command {
-    Stop,
-}
+implement_command! {}
 
 struct PulseAudioRecorder {
     command_receiver: Receiver<Command>,
@@ -45,19 +44,18 @@ pub fn run_recorder(sink_command_sender: Sender<sink::Command>) -> Result<Comman
     let latency = recorder.pulse.get_latency().unwrap();
     println!("latency: {}", latency);
 
-
     let join_handle = std::thread::spawn(move || {
         recorder.run().unwrap();
     });
 
-    Ok(CommandNode::new(join_handle, send, Command::Stop))
+    Ok(CommandNode::new(join_handle, send))
 }
 
 impl PulseAudioRecorder {
     fn run(&mut self) -> Result<()> {
         loop {
             match self.command_receiver.try_recv() {
-                Ok(Command::Stop) => {
+                Ok(Command::Node(node::Command::Stop)) => {
                     println!("recorder stop");
                     break;
                 }
