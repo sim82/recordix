@@ -6,7 +6,7 @@ rust:
   - nightly
 matrix:
   allow_failures:
-    - rust: 
+    rust: 
       - beta
       - nightly
 fast_finish: true
